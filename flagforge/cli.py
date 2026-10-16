@@ -514,6 +514,8 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument(
             "-f",
             "--file",
+            # SUPPRESS：未显式指定时不写入 namespace，避免覆盖顶层已解析的值
+            default=argparse.SUPPRESS,
             help="flag file path (default: auto-detect %s)" % "/".join(DEFAULT_FILENAMES),
         )
         p.add_argument(

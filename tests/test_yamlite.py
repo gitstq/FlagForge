@@ -136,8 +136,11 @@ class TestFlowCollections(unittest.TestCase):
             parse("cfg: {a}")
 
     def test_unbalanced_flow(self):
+        # 嵌套流式集合中的括号不配对应报错（顶层以 [ 开头的普通标量不算）
         with self.assertRaises(YamlError):
-            parse("cfg: [a, b")
+            parse("cfg: [[a, b]")
+        with self.assertRaises(YamlError):
+            parse("cfg: {a: [1, 2}")
 
     def test_regex_starting_with_bracket_stays_string(self):
         # 以 [ 开头但不以 ] 结尾 → 纯标量

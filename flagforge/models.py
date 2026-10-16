@@ -413,7 +413,11 @@ class Flag:
             key=str(data["key"]),
             state=str(data.get("state", "off")),
             description=str(data.get("description", "")),
-            variant_type=str(data.get("variant_type", "boolean")),
+            variant_type=(
+                str(data["variant_type"])
+                if data.get("variant_type") is not None
+                else None
+            ),
             variants=dict(data["variants"]),
             default_variant=data.get("default_variant"),
             targeting=[
