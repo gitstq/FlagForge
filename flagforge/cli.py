@@ -638,7 +638,25 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _configure_stdio() -> None:
+    """强制标准输出/错误使用 UTF-8。
+
+    Windows 控制台默认使用本地代码页（如 cp1252/cp936），直接写出非 ASCII
+    字符（如中文描述）会抛 UnicodeEncodeError。此处统一重配置为 UTF-8，
+    并在无法编码时以替代字符降级，保证 CLI 不会因编码问题中断。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
+
 def main(argv: Optional[List[str]] = None) -> int:
+    _configure_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
     if not getattr(args, "func", None):
