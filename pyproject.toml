@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flagforge"
+version = "1.0.0"
+description = "FlagForge — lightweight local-first feature flag engine with OpenFeature-compatible evaluation semantics (zero dependencies)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "gitstq" }]
+keywords = [
+    "feature-flags",
+    "feature-toggles",
+    "openfeature",
+    "gradual-rollout",
+    "ab-testing",
+    "kill-switch",
+    "zero-dependencies",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating Platform OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/gitstq/FlagForge"
+Documentation = "https://github.com/gitstq/FlagForge#readme"
+Issues = "https://github.com/gitstq/FlagForge/issues"
+Changelog = "https://github.com/gitstq/FlagForge/blob/main/CHANGELOG.md"
+
+[project.scripts]
+flagforge = "flagforge.cli:main"
+
+[tool.setuptools]
+packages = ["flagforge"]

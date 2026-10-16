@@ -1,0 +1,184 @@
+# ==========================================================================
+# FlagForge 示例配置 —— 覆盖全部核心特性
+#
+# 用法：
+#   flagforge validate --file examples/flags.yaml
+#   flagforge list --file examples/flags.yaml
+#   flagforge eval new-checkout --file examples/flags.yaml -c targetingKey=u1
+# ==========================================================================
+
+meta:
+  name: demo-project
+  description: 示例项目，演示 rollout / targeting / variants / kill-switch
+
+flags:
+  # ----------------------------------------------------------------------
+  # 1. 百分比灰度（rollout）：25% 流量看到新版结账
+  # ----------------------------------------------------------------------
+  - key: new-checkout
+    description: 新版结账流程（灰度发布中）
+    state: on
+    variant_type: boolean
+    variants:
+      enabled: true
+      control: false
+    default_variant: control
+    rollout:
+      percentage: 25
+      variant: enabled
+      bucket_by: targetingKey
+    metadata:
+      owner: team-payments
+      tags:
+        - checkout
+        - growth
+      updated_at: "2026-10-16"
+
+  # ----------------------------------------------------------------------
+  # 2. 多变体 A/B 实验：50% 流量进入实验，组内 50/50 分配
+  # ----------------------------------------------------------------------
+  - key: pricing-page-redesign
+    description: 定价页改版 A/B 实验
+    state: on
+    variant_type: string
+    variants:
+      control: "classic"
+      variant-a: "modern"
+      variant-b: "bold"
+    default_variant: control
+    rollout:
+      percentage: 50
+      variants:
+        variant-a: 50
+        variant-b: 50
+    metadata:
+      owner: team-growth
+      tags:
+        - experiment
+      updated_at: "2026-10-16"
+
+  # ----------------------------------------------------------------------
+  # 3. Targeting 定向：仅内部员工可见（多条件 AND）
+  # ----------------------------------------------------------------------
+  - key: internal-tools
+    description: 内部工具入口（定向员工邮箱）
+    state: on
+    variant_type: boolean
+    variants:
+      on: true
+      off: false
+    default_variant: off
+    targeting:
+      - id: employees
+        description: 公司邮箱域名
+        conditions:
+          - field: email
+            op: ends_with
+            values: ["@example.com"]
+        variant: on
+      - id: beta-users
+        description: 灰度规则叠加：beta 标签用户
+        conditions:
+          - field: beta
+            op: in
+            values: [true]
+        variant: on
+    metadata:
+      owner: platform
+      tags:
+        - internal
+      updated_at: "2026-10-16"
+
+  # ----------------------------------------------------------------------
+  # 4. 规则内百分比：命中年份条件的用户中仅 10% 生效
+  # ----------------------------------------------------------------------
+  - key: seasonal-banner
+    description: 季节性横幅（规则内百分比）
+    state: on
+    variant_type: string
+    variants:
+      summer: "summer-sale"
+      none: ""
+    default_variant: none
+    targeting:
+      - id: summer-promo
+        conditions:
+          - field: country
+            op: in
+            values: ["CN", "US"]
+        variant: summer
+        percentage: 10
+    metadata:
+      owner: marketing
+      tags:
+        - promo
+      updated_at: "2026-10-16"
+
+  # ----------------------------------------------------------------------
+  # 5. 数值 / 正则 / 存在性条件组合
+  # ----------------------------------------------------------------------
+  - key: enterprise-features
+    description: 企业版功能（套餐 + 席位 + 域名组合判断）
+    state: on
+    variant_type: object
+    variants:
+      ent:
+        sso: true
+        audit_log: true
+        seats: 100
+      base: {}
+    default_variant: base
+    targeting:
+      - id: big-teams
+        description: 套餐为 pro/ent 且席位超过 20
+        conditions:
+          - field: plan
+            op: in
+            values: ["pro", "ent"]
+          - field: seats
+            op: gt
+            values: [20]
+        variant: ent
+    metadata:
+      owner: team-platform
+      tags:
+        - enterprise
+      updated_at: "2026-10-16"
+
+  # ----------------------------------------------------------------------
+  # 6. Kill switch（熔断开关）：默认关闭，紧急时打开
+  # ----------------------------------------------------------------------
+  - key: legacy-api
+    description: 旧版 API 熔断开关（默认关闭）——紧急时置 on 可快速下线
+    state: off
+    variant_type: boolean
+    variants:
+      on: true
+      off: false
+    default_variant: off
+    metadata:
+      owner: platform
+      tags:
+        - killswitch
+      updated_at: "2026-10-16"
+
+  # ----------------------------------------------------------------------
+  # 7. bucket_salt：整体重新洗牌灰度流量（不影响其他 flag）
+  # ----------------------------------------------------------------------
+  - key: new-search-ranking
+    description: 新搜索排序算法（v2 实验，使用 salt 重新分桶）
+    state: on
+    variant_type: boolean
+    variants:
+      v2: true
+      v1: false
+    default_variant: v1
+    bucket_salt: "ranking-2026-10"
+    rollout:
+      percentage: 30
+      variant: v2
+    metadata:
+      owner: team-search
+      tags:
+        - experiment
+      updated_at: "2026-10-16"
