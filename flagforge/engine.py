@@ -49,11 +49,25 @@ def _compare(op: str, actual: Any, expected: Any) -> bool:
     return False
 
 
+def _as_number(v: Any) -> Optional[float]:
+    """将数字或可解析的数值字符串转换为浮点数；否则返回 None。"""
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    if isinstance(v, str):
+        try:
+            return float(v)
+        except ValueError:
+            return None
+    return None
+
+
 def _numeric_gt(a: Any, b: Any, equal: bool = False) -> bool:
-    a_num = a if isinstance(a, (int, float)) and not isinstance(a, bool) else None
-    b_num = b if isinstance(b, (int, float)) and not isinstance(b, bool) else None
+    a_num = _as_number(a)
+    b_num = _as_number(b)
     if a_num is None or b_num is None:
-        # 退化到字符串比较（保持可预测性）
+        # 双方均为字符串时退化为字典序比较（保持可预测性）
         if isinstance(a, str) and isinstance(b, str):
             return a >= b if equal else a > b
         return False

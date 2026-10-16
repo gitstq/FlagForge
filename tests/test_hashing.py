@@ -52,13 +52,14 @@ class TestBucket(unittest.TestCase):
         self.assertNotEqual(base, salted)
 
     def test_percentage_monotonic_semantics(self):
-        # 对任意 key，percentage 为 p 时命中集合应是 p+10 命中集合的子集
+        # 对任意 key，bucket < p 即代表落入 p% 灰度区间；500 个 key 下
+        # 30% / 40% 的命中数应分别约为 150 / 200（含统计容差）
         keys = ["user-%d" % i for i in range(500)]
         hit_30 = {k for k in keys if bucket("f", k) < 30}
         hit_40 = {k for k in keys if bucket("f", k) < 40}
         self.assertTrue(hit_30.issubset(hit_40))
-        self.assertTrue(280 <= len(hit_30) <= 320)
-        self.assertTrue(380 <= len(hit_40) <= 420)
+        self.assertTrue(120 <= len(hit_30) <= 180)
+        self.assertTrue(170 <= len(hit_40) <= 230)
 
     def test_distribution_roughly_uniform(self):
         keys = ["user-%d" % i for i in range(10000)]

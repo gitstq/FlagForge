@@ -500,7 +500,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version="flagforge %s" % __version__)
     sub = parser.add_subparsers(dest="command", metavar="<command>")
 
-    def add_common(p: argparse.ArgumentParser, context: bool = True) -> None:
+    def add_common(
+        p: argparse.ArgumentParser,
+        context: bool = True,
+        formats: Tuple[str, ...] = ("text", "json"),
+    ) -> None:
         p.add_argument(
             "-f",
             "--file",
@@ -508,7 +512,7 @@ def build_parser() -> argparse.ArgumentParser:
         )
         p.add_argument(
             "--format",
-            choices=["text", "json"],
+            choices=list(formats),
             default="text",
             help="output format (default: text)",
         )
@@ -583,12 +587,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_lint.set_defaults(func=_cmd_lint)
 
     p_export = sub.add_parser("export", help="export flags / evaluations")
-    add_common(p_export)
-    p_export.add_argument(
-        "--format",
-        choices=["json", "table", "markdown", "env", "schema"],
-        default="table",
-        help="export format (default: table)",
+    add_common(
+        p_export,
+        formats=("json", "table", "markdown", "env", "schema"),
     )
     p_export.add_argument(
         "--evaluated", action="store_true", help="export evaluation results"
