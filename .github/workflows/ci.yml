@@ -34,9 +34,17 @@ jobs:
       - name: Unit tests (unittest)
         run: python -m unittest discover -s tests -v
 
-      - name: CLI smoke test
+      - name: CLI smoke test (module entry, zero-install)
         run: |
-          flagforge validate --file examples/flags.yaml
-          flagforge list --file examples/flags.yaml
-          flagforge eval new-checkout --file examples/flags.yaml -c targetingKey=smoke-user
+          python -m flagforge validate --file examples/flags.yaml
+          python -m flagforge list --file examples/flags.yaml
+          python -m flagforge eval new-checkout --file examples/flags.yaml -c targetingKey=smoke-user
+          python -m flagforge lint --file examples/flags.yaml
+        shell: bash
+
+      - name: Packaging check (console script)
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+          flagforge --version
         shell: bash
