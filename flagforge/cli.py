@@ -356,7 +356,8 @@ def _cmd_gate(args: argparse.Namespace) -> int:
     if not checks:
         sys.stderr.write("error: no --expect given; nothing to check\n")
         return EXIT_ERROR
-    _print("gate passed")
+    if args.format != "json":
+        _print("gate passed")
     return EXIT_OK
 
 
