@@ -144,6 +144,12 @@ class OpenFeature:
         facade._clients[name] = Client(flag_set, name=name)
         return facade
 
+    @classmethod
+    def from_string(cls, text: str, domain: str = "default", name: str = "flagforge") -> "OpenFeature":
+        facade = cls(domain=domain)
+        facade.set_provider_from_string(text, name=name)
+        return facade
+
     def set_provider_from_file(self, path: str, name: str = "flagforge") -> None:
         self._clients[name] = Client(load_flags(path), name=name)
 

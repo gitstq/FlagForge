@@ -277,7 +277,7 @@ class Flag:
     key: str
     state: str = "off"
     description: str = ""
-    variant_type: str = "boolean"
+    variant_type: Optional[str] = None
     variants: Dict[str, Any] = field(default_factory=dict)
     default_variant: Optional[str] = None
     targeting: List[TargetingRule] = field(default_factory=list)
@@ -297,7 +297,7 @@ class Flag:
                 "flag.state",
                 "'%s' is invalid (expected one of: %s)" % (self.state, ", ".join(FLAG_STATES)),
             )
-        if self.variant_type not in VARIANT_TYPES:
+        if self.variant_type is not None and self.variant_type not in VARIANT_TYPES:
             raise ValidationError(
                 "flag.variant_type",
                 "'%s' is invalid (expected one of: %s)"
@@ -347,6 +347,8 @@ class Flag:
             raise ValidationError("flag.bucket_salt", "must be a string")
 
     def _check_variant_value(self, name: str, value: Any) -> None:
+        if self.variant_type is None:
+            return
         checks = {
             "boolean": lambda v: isinstance(v, bool),
             "string": lambda v: isinstance(v, str),
@@ -364,10 +366,11 @@ class Flag:
         out: Dict[str, Any] = {
             "key": self.key,
             "state": self.state,
-            "variant_type": self.variant_type,
             "variants": dict(self.variants),
             "default_variant": self.default_variant,
         }
+        if self.variant_type is not None:
+            out["variant_type"] = self.variant_type
         if self.description:
             out["description"] = self.description
         if self.targeting:

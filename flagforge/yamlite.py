@@ -333,12 +333,7 @@ def parse_flow(text: str, line_no: int = 0) -> Any:
                 )
             result[_unquote_key(key, line_no)] = parse_flow(value, line_no)
         return result
-    if text and text[0] in "[{":
-        raise YamlError(
-            "invalid flow collection '%s' (must start with '[' or '{' and end "
-            "with the matching bracket; quote it for a literal string)" % text,
-            line_no,
-        )
+    # 不以匹配括号闭合的 `[`/`{` 开头文本（如正则 `[a-z]+`）视为普通标量
     return parse_scalar(text, line_no)
 
 

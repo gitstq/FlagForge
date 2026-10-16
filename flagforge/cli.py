@@ -498,6 +498,12 @@ def build_parser() -> argparse.ArgumentParser:
         description="FlagForge — lightweight local-first feature flag engine",
     )
     parser.add_argument("--version", action="version", version="flagforge %s" % __version__)
+    # 顶层 --file：同时支持 `flagforge --file x <command>` 与 `<command> --file x`
+    parser.add_argument(
+        "-f",
+        "--file",
+        help="flag file path (default: auto-detect %s)" % "/".join(DEFAULT_FILENAMES),
+    )
     sub = parser.add_subparsers(dest="command", metavar="<command>")
 
     def add_common(
